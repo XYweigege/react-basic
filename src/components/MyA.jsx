@@ -4,7 +4,7 @@ import { MobxContext } from "@/store";
 import { observer } from "mobx-react-lite";
 import axios from "axios";
 import "@/mock/index";
-
+import "./index.css";
 const MyA = observer(() => {
   const { setCount, getCount } = useContext(MobxContext);
   const handlesetCount = (val) => {
@@ -21,6 +21,7 @@ const MyA = observer(() => {
       MyA
       {getCount}
       <button onClick={() => handlesetCount(4)}>点击</button>
+      <span className="text">helloworld</span>
     </div>
   );
 });

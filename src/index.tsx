@@ -5,7 +5,7 @@ import reportWebVitals from "./reportWebVitals";
 import "@/i18n/index";
 import { BrowserRouter as Router } from "react-router-dom"; // 导入正确的 Router 组件
 import { Store } from "./store/index";
-
+import "@/utils/flexible";
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
