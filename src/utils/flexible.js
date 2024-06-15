@@ -1,55 +1,156 @@
-(function flexible(window, document) {
-  // 获取的html 的根元素
-  var docEl = document.documentElement;
-  // dpr 物理像素比
-  //window.devicePixelRatio 当前浏览器物流像素比
-  var dpr = window.devicePixelRatio || 1;
+(function (win, lib) {
+  var doc = win.document;
+  var docEl = doc.documentElement;
+  var metaEl = doc.querySelector('meta[name="viewport"]');
+  var flexibleEl = doc.querySelector('meta[name="flexible"]');
+  var dpr = 0;
+  var scale = 0;
+  var tid;
+  var flexible = lib.flexible || (lib.flexible = {});
 
-  // adjust body font size  设置我们body 的字体大小
-  function setBodyFontSize() {
-    // 如果页面中有body 这个元素 就设置body的字体大小
-    if (document.body) {
-      document.body.style.fontSize = 12 * dpr + "px";
+  if (metaEl) {
+    console.warn("将根据已有的meta标签来设置缩放比例");
+    var match = metaEl
+      .getAttribute("content")
+      .match(/initial\-scale=([\d\.]+)/);
+    if (match) {
+      scale = parseFloat(match[1]);
+      dpr = parseInt(1 / scale);
+    }
+  } else if (flexibleEl) {
+    var content = flexibleEl.getAttribute("content");
+    if (content) {
+      var initialDpr = content.match(/initial\-dpr=([\d\.]+)/);
+      var maximumDpr = content.match(/maximum\-dpr=([\d\.]+)/);
+      if (initialDpr) {
+        dpr = parseFloat(initialDpr[1]);
+        scale = parseFloat((1 / dpr).toFixed(2));
+      }
+      if (maximumDpr) {
+        dpr = parseFloat(maximumDpr[1]);
+        scale = parseFloat((1 / dpr).toFixed(2));
+      }
+    }
+  }
+
+  if (!dpr && !scale) {
+    var isAndroid = win.navigator.appVersion.match(/android/gi);
+    var isIPhone = win.navigator.appVersion.match(/iphone/gi);
+    var devicePixelRatio = win.devicePixelRatio;
+    //var isRegularDpr = devicePixelRatio.toString().match(/^[1-9]\d*$/g);
+    if (isIPhone) {
+      // 对于2和3的屏，用2倍的方案，其余的用1倍方案
+      if (devicePixelRatio >= 3 && (!dpr || dpr >= 3)) {
+        dpr = 3;
+      } else if (devicePixelRatio >= 2 && (!dpr || dpr >= 2)) {
+        dpr = 2;
+      } else {
+        dpr = 1;
+      }
     } else {
-      // 如果页面中没有body 这个元素，则等着 我们页面主要的DOM元素加载完毕再去设置body 的字体大小
-      // DOMContentLoaded   DOM元素加载后执行
-      document.addEventListener("DOMContentLoaded", setBodyFontSize);
+      // 其他设备下，仍旧使用1倍的方案
+      dpr = 1;
+    }
+    scale = 1 / dpr;
+  }
+
+  docEl.setAttribute("data-dpr", dpr);
+  if (!metaEl) {
+    metaEl = doc.createElement("meta");
+    metaEl.setAttribute("name", "viewport");
+    //Android target-densitydpi=device-dpi
+    var attribute =
+      "initial-scale=" +
+      scale +
+      ", maximum-scale=" +
+      scale +
+      ", minimum-scale=" +
+      scale +
+      ", user-scalable=no";
+    //判断是否是WebView
+    var app = getCookie("chelun_appName");
+    if (app) {
+      attribute = "width=device-width," + attribute;
+    }
+    metaEl.setAttribute("content", attribute);
+    if (docEl.firstElementChild) {
+      docEl.firstElementChild.appendChild(metaEl);
+    } else {
+      var wrap = doc.createElement("div");
+      wrap.appendChild(metaEl);
+      doc.write(wrap.innerHTML);
     }
   }
-  setBodyFontSize();
 
-  // set 1rem = viewWidth / 10    设置我们 html 元素的文字大小
-  function setRemUnit() {
-    // html 宽度分为10等份
-    var rem = docEl.clientWidth / 10;
-    if (rem > 54) {
-      rem = 54;
+  function getCookie(name) {
+    var maps = {};
+    var cookArr = document.cookie.split(";");
+    for (var i in cookArr) {
+      var tmp = cookArr[i].replace(/^\s*/, "");
+      if (tmp) {
+        var nv = tmp.split("=");
+        maps[nv[0]] = nv[1] || "";
+      }
     }
+    return maps[name];
+  }
+  function refreshRem() {
+    var width = docEl.getBoundingClientRect().width;
+    if (width / dpr > 540) {
+      width = 540 * dpr;
+    }
+    var rem = width / 10;
     docEl.style.fontSize = rem + "px";
+    flexible.rem = win.rem = rem;
   }
 
-  setRemUnit();
+  win.addEventListener(
+    "resize",
+    function () {
+      clearTimeout(tid);
+      tid = setTimeout(refreshRem, 300);
+    },
+    false
+  );
+  win.addEventListener(
+    "pageshow",
+    function (e) {
+      if (e.persisted) {
+        clearTimeout(tid);
+        tid = setTimeout(refreshRem, 300);
+      }
+    },
+    false
+  );
 
-  // reset rem unit on page resize  当我们页面尺寸大小发生变化的时候，要重新设置下rem 的大小
-  window.addEventListener("resize", setRemUnit);
-  // pageshow 是我们重新加载页面触发的事件
-  window.addEventListener("pageshow", function (e) {
-    // e.persisted 返回的是true 就是说如果这个页面是从缓存取过来的页面，也需要从新计算一下rem 的大小
-    if (e.persisted) {
-      setRemUnit();
-    }
-  });
-
-  // detect 0.5px supports  有些移动端的浏览器不支持0.5像素的写法
-  if (dpr >= 2) {
-    var fakeBody = document.createElement("body");
-    var testElement = document.createElement("div");
-    testElement.style.border = ".5px solid transparent";
-    fakeBody.appendChild(testElement);
-    docEl.appendChild(fakeBody);
-    if (testElement.offsetHeight === 1) {
-      docEl.classList.add("hairlines");
-    }
-    docEl.removeChild(fakeBody);
+  if (doc.readyState === "complete") {
+    //doc.body.style.fontSize = 12 * dpr + 'px';
+  } else {
+    doc.addEventListener(
+      "DOMContentLoaded",
+      function (e) {
+        //doc.body.style.fontSize = 12 * dpr + 'px';
+      },
+      false
+    );
   }
-})(window, document);
+
+  refreshRem();
+
+  flexible.dpr = win.dpr = dpr;
+  flexible.refreshRem = refreshRem;
+  flexible.rem2px = function (d) {
+    var val = parseFloat(d) * this.rem;
+    if (typeof d === "string" && d.match(/rem$/)) {
+      val += "px";
+    }
+    return val;
+  };
+  flexible.px2rem = function (d) {
+    var val = parseFloat(d) / this.rem;
+    if (typeof d === "string" && d.match(/px$/)) {
+      val += "rem";
+    }
+    return val;
+  };
+})(window, window["lib"] || (window["lib"] = {}));
