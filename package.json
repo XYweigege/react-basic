@@ -3,14 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@babel/core": "^7.16.0",
     "@craco/craco": "^7.1.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@svgr/webpack": "^5.5.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.5.2",
     "@types/node": "^16.18.98",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
@@ -76,7 +74,7 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
-    "test": "craco test",
+    "test": "jest --coverage",
     "eject": "react-scripts eject",
     "prepare": "husky",
     "commit": "git-cz"
@@ -103,10 +101,21 @@
     "roots": [
       "<rootDir>/src"
     ],
+    "collectCoverage": true,
     "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.d.ts"
+      "get.ts",
+      "sum.ts",
+      "src/utils/**/*",
+      "!src/utils/flexible.js",
+      "!src/utils/request.js"
     ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 90,
+        "functions": 90,
+        "branches": 90
+      }
+    },
     "setupFiles": [
       "react-app-polyfill/jsdom"
     ],
@@ -156,8 +165,13 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
     "@commitlint/config-conventional": "^19.2.2",
+    "@types/jest": "^29.5.12",
     "autoprefixer": "^10.4.19",
+    "babel-eslint": "^10.1.0",
     "commitizen": "^4.3.0",
     "commitlint": "^19.3.0",
     "commitlint-config-cz": "^0.13.3",
