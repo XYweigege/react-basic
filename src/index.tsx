@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "@/i18n/index";
+import { BrowserRouter as Router } from "react-router-dom"; // 导入正确的 Router 组件
 import { Store } from "./store/index";
 
 const root = ReactDOM.createRoot(
@@ -11,7 +12,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <Store>
-      <App />
+      <Router>
+        <App />
+      </Router>
     </Store>
   </React.StrictMode>
 );

@@ -1,17 +1,10 @@
-import React, { useContext, useEffect } from "react";
-import { useTranslation, Trans } from "react-i18next";
-import { MobxContext } from "./store";
-import MyA from "./components/MyA";
-import MyB from "./components/MyB";
-import { Observer } from "mobx-react-lite";
+import React, { Suspense } from "react";
+import { useRoutes } from "react-router-dom";
+import { Pages } from "@/route/index";
 function App() {
-  const store: any = useContext(MobxContext);
-
-  const { t } = useTranslation();
   return (
     <div className="App">
-      <MyA />
-      <MyB />
+      <Suspense fallback={<span>loading</span>}>{useRoutes(Pages)}</Suspense>
     </div>
   );
 }
