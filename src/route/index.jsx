@@ -1,31 +1,31 @@
-import React from "react";
-import { lazy } from "react";
-import { Outlet } from "react-router-dom";
-const ACoponent = lazy(() => import("@/components/MyA"));
+import React from 'react'
+import { lazy } from 'react'
+import { Outlet } from 'react-router-dom'
+const ACoponent = lazy(() => import('@/components/MyA'))
 
 export const Pages = [
   {
-    path: "/",
-    element: <ACoponent />,
+    path: '/',
+    element: <ACoponent />
   },
   {
-    path: "/zh",
+    path: '/zh',
     element: <Outlet />,
     children: [
       {
-        path: "home",
-        element: <ACoponent />,
-      },
-    ],
+        path: 'home',
+        element: <ACoponent />
+      }
+    ]
   },
   {
-    path: "/en",
+    path: '/en',
     element: <Outlet />,
     children: [
       {
-        path: "home",
-        element: <ACoponent />,
-      },
-    ],
-  },
-];
+        path: 'home',
+        element: <ACoponent />
+      }
+    ]
+  }
+]

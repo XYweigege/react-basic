@@ -1,16 +1,16 @@
-import Mock from "mockjs";
-const Random = Mock.Random;
+import Mock from 'mockjs'
+const Random = Mock.Random
 
-const getData = Mock.mock("/mock/getData", "post", () => {
+const getData = Mock.mock('/mock/getData', 'post', () => {
   const ret = Mock.mock({
-    username: "@cname",
+    username: '@cname',
     age: Random.integer(60, 100),
-    ID: Random.id(),
-  });
+    ID: Random.id()
+  })
   return {
     status: 200,
-    data: ret,
-  };
-});
+    data: ret
+  }
+})
 
-export { getData };
+export { getData }

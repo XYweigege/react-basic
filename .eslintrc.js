@@ -26,5 +26,5 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'react'],
   rules: {},
-  ignorePatterns: ['commitlint.config.js'] // 添加这行以忽略 commitlint.config.js
+  ignorePatterns: ['*', 'commitlint.config.js', 'config', '!src/**', 'src/**'] // 忽略 src 目录外的所有文件
 }

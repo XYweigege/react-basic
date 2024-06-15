@@ -1,11 +1,11 @@
-import React, { memo } from "react";
-import { useContext, useEffect } from "react";
-import { MobxContext } from "@/store";
-import { observer } from "mobx-react-lite";
+import React, { memo } from 'react'
+import { useContext, useEffect } from 'react'
+import { MobxContext } from '@/store'
+import { observer } from 'mobx-react-lite'
 const MyB = observer(() => {
-  const { getCount } = useContext(MobxContext);
+  const { getCount } = useContext(MobxContext)
 
-  return <div>{getCount}</div>;
-});
+  return <div>{getCount}</div>
+})
 
-export default MyB;
+export default MyB
